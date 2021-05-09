@@ -7,7 +7,10 @@ const bodyParser = require('body-parser');
 const passport = require('passport');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const SQLiteStore = require('connect-sqlite3')(session);
+const passportSocketIo = require('passport.socketio');
 
+const sessionStorage = new SQLiteStore();
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
@@ -16,7 +19,8 @@ const authRouter = require('./src/routes/authRoutes');
 const publicChatRouter = require('./src/routes/publicChatRoutes');
 
 app.use(cookieParser());
-app.use(session({ secret: 'chat' }));
+const sessionMiddleware = session({ secret: 'changeit', resave: false, saveUninitialized: false });
+app.use(sessionMiddleware);
 require('./src/config/passport.js')(app);
 
 app.use(bodyParser.json());
@@ -33,8 +37,30 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '/src/views/index.html'));
 });
 
+// function onAuthorizeSucces(data, accept) {
+//   console.log('successfull connection to socket.io');
+//   accept(null, true);
+// }
+// function onAuthorizeFail(data, accept) {
+//   console.log('unsuccesfull auth');
+//   accept(new Error('authorization rejected'));
+// }
+const wrap = (middleware) => (socket, next) => middleware(socket.request, {}, next);
+
+io.use(wrap(sessionMiddleware));
+io.use(wrap(passport.initialize()));
+io.use(wrap(passport.session()));
+io.use((socket, next) => {
+  if (socket.request.user) {
+    next();
+  } else {
+    console.log('err');
+    next(new Error("unauthorized"));
+  }
+});
+
 io.on('connection', (socket) => {
-  console.log('a user connected');
+  console.log(`new connection ${socket.id}`);
   socket.on('chat message', (msg) => {
     io.emit('chat message', msg);
   });

@@ -14,7 +14,7 @@ module.exports = function localStrategy() {
         console.log(username, password, user.name, user.password);
         if (user.name) {
           if (user.password === password) {
-            console.log('git');
+            console.log('login succesful');
             done(null, user);
           } else {
             done(null, false, { message: 'Incorrect password' });

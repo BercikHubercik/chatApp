@@ -13,6 +13,7 @@ function router() {
   });
   chatRouter.route('/')
     .get((req, res) => {
+      console.log(req.session);
       const { name } = req.user;
       console.log(name);
       res.render('userChat.ejs', {
