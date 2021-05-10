@@ -11,10 +11,8 @@ module.exports = function localStrategy() {
         const sql = 'SELECT * FROM users WHERE name = ?';
         const user = await db.get(sql, [username]);
         await db.close();
-        console.log(username, password, user.name, user.password);
-        if (user.name) {
+        if (user) {
           if (user.password === password) {
-            console.log('login succesful');
             done(null, user);
           } else {
             done(null, false, { message: 'Incorrect password' });

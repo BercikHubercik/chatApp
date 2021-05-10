@@ -8,9 +8,8 @@ const input = document.getElementById('input');
 form.addEventListener('submit', (e) => {
   e.preventDefault();
   if (input.value) {
-    console.log('e', name);
-    const msg = `${name} : ${input.value}`;
-    socket.emit('chat message', msg);
+    console.log('e');
+    socket.emit('chat message', input.value);
     input.value = '';
   }
 });

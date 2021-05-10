@@ -34,7 +34,15 @@ app.set('views', './src/views');
 app.set('view engine', 'ejs');
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '/src/views/index.html'));
+  let msg;
+  if (req.query.msg) {
+    msg = req.query.msg;
+  } else {
+    msg = '';
+  }
+  res.render('index.ejs', {
+    errorMsg: msg,
+  });
 });
 
 // function onAuthorizeSucces(data, accept) {
@@ -54,15 +62,17 @@ io.use((socket, next) => {
   if (socket.request.user) {
     next();
   } else {
-    console.log('err');
     next(new Error("unauthorized"));
   }
 });
 
 io.on('connection', (socket) => {
   console.log(`new connection ${socket.id}`);
+  const username = socket.request.user.name;
+  io.emit('user connected', username);
   socket.on('chat message', (msg) => {
-    io.emit('chat message', msg);
+    const userMsg = `${username} : ${msg}`;
+    io.emit('chat message', userMsg);
   });
   socket.on('disconnect', () => {
     console.log('user disconnected');
