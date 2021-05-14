@@ -4,19 +4,8 @@
 <head>
     <title>Socket.IO chat</title>
     <style>
-        .fc {
-            display: flex;
-            flex-wrap: wrap;
-            text-align: center;
-        }
-        .fc-col {
-            display: flex;
-            flex-direction: column-reverse;
-        }
-
         #chat {
             border: 2px solid grey;
-            float: right;
         }
 
         body {
@@ -26,9 +15,9 @@
         }
 
         #form {
-
             background: rgba(0, 0, 0, 0.15);
             padding: 0.25rem;
+            position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
@@ -64,61 +53,25 @@
             list-style-type: none;
             margin: 0;
             padding: 0;
-            order: -1;
         }
 
         #messages>li {
             padding: 0.5rem 1rem;
-            float: top;
         }
 
         #messages>li:nth-child(odd) {
             background: #efefef;
         }
-
-        #userList {
-            float: left;
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background-color: #333333;
-        }
-
-        #userList>li {
-            float: top;
-        }
-
-        #userList>li a {
-            display: block;
-            color: white;
-            text-align: center;
-            padding: 16px;
-            text-decoration: none;
-        }
-
-        li a:hover {
-            background-color: #111111;
-        }
     </style>
 </head>
 
 <body>
-    <h1>Welcome back <%=name%>
-    </h1>
-    <div class="fc">
-        <ul id="userList">
-            <li><a href="#home">Home</a></li>
-            <li><a href="#news">News</a></li>
-            <li><a href="#contact">Contact</a></li>
-            <li><a href="#about">About</a></li>
-        </ul>
-        <div id="chat" class="fc-col">
-            <ul id="messages"></ul>
-            <form id="form" action="">
-                <input id="input" autocomplete="off" /><button>Send</button>
-            </form>
-        </div>
+    <h1 id="targetUser"><%=targetUser%></h1> 
+    <div id="chat">
+        <ul id="messages"></ul>
+        <form id="form" action="">
+            <input id="input" autocomplete="off" /><button>Send</button>
+        </form>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -128,18 +81,27 @@
         const messages = document.getElementById('messages');
         const form = document.getElementById('form');
         const input = document.getElementById('input');
-        const userList = document.getElementById('userList')
-
-
+        const targetUser = document.getElementById('targetUser').innerText;
+        console.log(targetUser);
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             if (input.value) {
                 console.log('e');
-                socket.emit('chat message', input.value);
+                socket.emit('priv message', input.value, targetUser);
+                const item = document.createElement('li');
+                item.textContent = input.value;
+                messages.appendChild(item);
+                window.scrollTo(0, document.body.scrollHeight);
                 input.value = '';
             }
         });
 
+        socket.on('priv message', (msg) => {
+            const item = document.createElement('li');
+            item.textContent = msg;
+            messages.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+        });
 
         socket.on('chat message', (msg) => {
             const item = document.createElement('li');
@@ -147,17 +109,14 @@
             messages.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
         });
+        
 
-        socket.on('user connected', (username) => {
-            const item = document.createElement('li');
-            item.textContent = username;
-            userList.appendChild(item);
-        })
         socket.onAny((event, ...args) => {
             console.log(event, args);
         });
 
     </script>
+
 </body>
 
 </html>

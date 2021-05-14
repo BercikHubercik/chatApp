@@ -22,7 +22,7 @@ function router() {
           console.log(userList);
           await db.close();
           const { name } = req.user;
-          res.render('userChat.ejs', {
+          res.render('userList.ejs', {
             name,
             userList,
           });
@@ -30,6 +30,13 @@ function router() {
           console.error(error);
         }
       }());
+    });
+  chatRouter.route('/privateRoom')
+    .get((req, res) => {
+      const { targetUser } = req.query;
+      res.render('userChat.ejs', {
+        targetUser,
+      });
     });
   return chatRouter;
 }

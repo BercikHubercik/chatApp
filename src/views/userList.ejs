@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Chat Users List</title>
+    <style>
+        h1, h2 {
+            font-family: 'Roboto';
+        }
+        #fcUserList {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            align-items: flex-start;
+            align-content: flex-start;
+
+        }
+
+        .btnUser {
+            margin: 10px;
+            background-color: #00cc66;
+            width: 180px;
+            padding: 4px 0;
+            border: none;
+            border-radius: 3px;
+        }
+
+        p {
+            font-family: 'Roboto';
+            text-align: center;
+            text-transform: uppercase;
+            color: #FFF;
+            user-select: none;
+        }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Welcome back <%=name%>! </h1>
+    <h2>Who would you like to chat?</h2>
+    <div id="fcUserList">
+
+        <% userList.forEach(user => { %>
+            <form action="/chat/privateRoom" method="GET">
+                <button class="btnUser" id="<%=user.name%>" name="targetUser" value="<%=user.name%>">
+                <p><%=user.name %></p>
+            </button>
+            </form>
+            
+
+        <% }); %>
+    </div>
+
+    <script>
+    
+    </script>
+</body>
+
+</html>
