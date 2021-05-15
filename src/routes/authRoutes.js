@@ -14,7 +14,6 @@ authRouter.route('/signUp')
         const db = await Database.open('./db/db.sqlite3');
         console.log('Connected correctly to sqlite');
         const nameExists = await db.get('SELECT EXISTS(SELECT * FROM users WHERE name = ?)', [username]);
-        console.log(nameExists);
         if (nameExists['EXISTS(SELECT * FROM users WHERE name = ?)'] === 0) {
           const sql = `INSERT INTO users (name, password) 
                   VALUES (?, ?)`;
@@ -24,7 +23,6 @@ authRouter.route('/signUp')
           await db.close();
           req.login(user, () => {
             res.redirect('/chat');
-            console.log('redi');
           });
         } else {
           res.redirect(url.format({

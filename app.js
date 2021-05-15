@@ -17,7 +17,6 @@ const io = new Server(server);
 const chatRouter = require('./src/routes/chatRoutes')();
 const authRouter = require('./src/routes/authRoutes');
 const publicChatRouter = require('./src/routes/publicChatRoutes');
-const { map } = require('bluebird');
 
 app.use(cookieParser());
 const sessionMiddleware = session({ secret: 'changeit', resave: false, saveUninitialized: false });
@@ -67,17 +66,16 @@ io.use((socket, next) => {
   }
 });
 
-let activeUsers = new Map();
+const activeUsers = new Map();
 io.on('connection', (socket) => {
   console.log(`new connection ${socket.id}`);
   const username = socket.request.user.name;
   activeUsers.set(username, socket.id);
-  console.log(activeUsers);
   io.emit('user connected', username);
 
   socket.on('priv message', (msg, target) => {
     const userMsg = `${username} : ${msg}`;
-    socket.broadcast.to(activeUsers.get(target)).emit('priv message', userMsg);
+    socket.broadcast.to(activeUsers.get(target)).emit('priv message', userMsg, username);
   });
   socket.on('chat message', (msg) => {
     const userMsg = `${username} : ${msg}`;

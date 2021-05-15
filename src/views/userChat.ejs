@@ -3,6 +3,7 @@
 
 <head>
     <title>Socket.IO chat</title>
+    <link rel="stylesheet" href="../style.css">
     <style>
         #chat {
             border: 2px solid grey;
@@ -38,16 +39,15 @@
         #input:focus {
             outline: none;
         }
-
         #form>button {
-            background: #333;
             border: none;
             padding: 0 1rem;
             margin: 0.25rem;
             border-radius: 3px;
             outline: none;
-            color: #fff;
+            max-width: 100px;
         }
+        
 
         #messages {
             list-style-type: none;
@@ -57,10 +57,6 @@
 
         #messages>li {
             padding: 0.5rem 1rem;
-        }
-
-        #messages>li:nth-child(odd) {
-            background: #efefef;
         }
     </style>
 </head>
@@ -82,6 +78,7 @@
         const form = document.getElementById('form');
         const input = document.getElementById('input');
         const targetUser = document.getElementById('targetUser').innerText;
+
         console.log(targetUser);
         form.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -90,17 +87,23 @@
                 socket.emit('priv message', input.value, targetUser);
                 const item = document.createElement('li');
                 item.textContent = input.value;
+                item.style.background = "#efefef";
+                item.style.textAlign = "right";
                 messages.appendChild(item);
                 window.scrollTo(0, document.body.scrollHeight);
                 input.value = '';
             }
         });
 
-        socket.on('priv message', (msg) => {
-            const item = document.createElement('li');
-            item.textContent = msg;
-            messages.appendChild(item);
-            window.scrollTo(0, document.body.scrollHeight);
+        socket.on('priv message', (msg, sender) => {
+            if (sender == targetUser) {
+                const item = document.createElement('li');
+                item.textContent = msg;
+
+                messages.appendChild(item);
+                window.scrollTo(0, document.body.scrollHeight);
+            }
+            
         });
 
         socket.on('chat message', (msg) => {

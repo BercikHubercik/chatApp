@@ -17,9 +17,7 @@ function router() {
       (async function getUserList() {
         try {
           const db = await Database.open('./db/db.sqlite3');
-          console.log('Connected correctly to sqlite');
           const userList = await db.all('SELECT name FROM users');
-          console.log(userList);
           await db.close();
           const { name } = req.user;
           res.render('userList.ejs', {
